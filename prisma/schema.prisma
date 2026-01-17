@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Consumer {
+  id         Int      @id @default(autoincrement())
+  consumerID Int      @unique
+  name       String   @db.VarChar(255)
+  address    String   @db.VarChar(500)
+  mobile_no  String   @db.VarChar(10)
+  createdAt  DateTime @default(now())
+  bills      Bill[]
+
+  @@index([consumerID])
+}
+
+model Bill {
+  id             Int      @id @default(autoincrement())
+  consumerID     Int
+  month          Int
+  year           Int
+  units_consumed Int
+  amt            Float
+  createdAt      DateTime @default(now())
+  
+  consumer       Consumer @relation(fields: [consumerID], references: [consumerID], onDelete: Cascade)
+
+  @@unique([consumerID, month, year])
+  @@index([consumerID])
+  @@index([year, month])
+}
+
+model Settings {
+  id            Int      @id @default(autoincrement())
+  key           String   @unique
+  value         String
+  updatedAt     DateTime @updatedAt
+}
